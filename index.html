@@ -11,6 +11,44 @@
 @media(max-width:1150px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dash-main,.dashboard-bottom,.two-col{grid-template-columns:1fr}.inventory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.content{padding:22px}.topbar{padding:0 22px}}
 @media(max-width:760px){.sidebar{transform:translateX(-100%);width:250px}.sidebar.open{transform:translateX(0)}.mobile-overlay.show{display:block;position:fixed;inset:0;background:#081c1380;z-index:9}.main{margin-left:0;width:100%}.menu-toggle{display:block}.topbar{height:66px;padding:0 15px}.top-actions .search{display:none}.content{padding:18px 14px 30px}.welcome{align-items:flex-start;flex-direction:column}.welcome h1{font-size:22px}.stats-grid{gap:10px}.card{padding:14px;border-radius:14px}.stat-value{font-size:21px}.section-grid,.form-grid{grid-template-columns:1fr}.inventory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar{width:100%}.toolbar input,.toolbar select{flex:1;min-width:125px}.toolbar .spacer{display:none}.top-actions .btn{padding:9px 10px}.page-title{font-size:15px}.date-chip{font-size:10px}.chart-wrap{height:190px}}
 @media(max-width:420px){.stats-grid{grid-template-columns:1fr 1fr}.inventory-grid{grid-template-columns:1fr 1fr}.stat-value{font-size:18px}.top-actions .icon-btn{display:none}.login-card{padding:25px}}
+
+/* Dashboard shortcuts: colored, responsive, modal-first actions */
+.dashboard-shortcuts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0 0 14px}
+.dashboard-shortcut{width:100%;min-height:88px;border:1px solid #e5ece6;background:linear-gradient(135deg,#fff 0%,#f8fbf8 100%);border-radius:17px;padding:15px 17px;display:flex;align-items:center;gap:13px;text-align:left;color:var(--ink);box-shadow:0 7px 22px rgba(22,47,33,.06);transition:transform .2s,border-color .2s,box-shadow .2s;position:relative;overflow:hidden}
+.dashboard-shortcut:after{content:"";position:absolute;right:-18px;top:-22px;width:76px;height:76px;border-radius:50%;background:var(--shortcut-tint,#e7f5ed);opacity:.75}
+.dashboard-shortcut:hover,.dashboard-shortcut:focus-visible{transform:translateY(-3px);border-color:var(--shortcut-color,#69a78a);box-shadow:0 13px 28px rgba(22,47,33,.13)}
+.dashboard-shortcut.income{--shortcut-color:#16845d;--shortcut-tint:#dff5e9}.dashboard-shortcut.expense{--shortcut-color:#d65c57;--shortcut-tint:#ffebe8}.dashboard-shortcut.orders{--shortcut-color:#4d73c9;--shortcut-tint:#e7edff}
+.shortcut-icon{width:44px;height:44px;flex:0 0 44px;border-radius:14px;background:var(--shortcut-tint,#edf5e8);color:var(--shortcut-color,var(--green2));display:grid;place-items:center;font-size:23px;position:relative;z-index:1}
+.shortcut-copy{position:relative;z-index:1}.shortcut-copy strong{display:block;font-size:13px;margin-bottom:4px}.shortcut-copy small{display:block;font-size:10px;color:var(--muted)}
+.dashboard-extra-shortcuts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 19px}
+.dashboard-extra-shortcuts button{border:1px solid #e6ece7;background:#fff;border-radius:14px;padding:13px 12px;display:flex;align-items:center;gap:10px;text-align:left;color:var(--ink);font-size:11px;font-weight:750;min-width:0;box-shadow:0 4px 14px rgba(22,47,33,.035);transition:.2s}
+.dashboard-extra-shortcuts button:hover,.dashboard-extra-shortcuts button:focus-visible{border-color:#a8cbb6;background:#f8fcf9;transform:translateY(-2px);box-shadow:0 8px 20px rgba(22,47,33,.08)}
+.dashboard-extra-shortcuts .extra-icon{font-size:20px;color:var(--extra-color,#267b59);background:var(--extra-tint,#eaf5ed);border-radius:10px;width:34px;height:34px;display:grid;place-items:center;text-align:center;flex:0 0 34px}
+.dashboard-extra-shortcuts button:nth-child(1){--extra-color:#267b59;--extra-tint:#e5f5eb}.dashboard-extra-shortcuts button:nth-child(2){--extra-color:#3979c5;--extra-tint:#e8f1ff}.dashboard-extra-shortcuts button:nth-child(3){--extra-color:#a16c20;--extra-tint:#fff2dc}.dashboard-extra-shortcuts button:nth-child(4){--extra-color:#8054b7;--extra-tint:#f1eaff}
+#page-dashboard .welcome{padding:20px 22px;background:linear-gradient(115deg,#eaf5ee 0%,#f8fbf8 56%,#f0f5ff 100%);border:1px solid #e1ece3;border-radius:18px;margin-bottom:18px}
+#page-dashboard .welcome h1{color:#143d2c}
+#page-dashboard .stat-card{border-top:3px solid #dbe8de}
+#page-dashboard .stat-card:nth-child(1){border-top-color:#2b9b6c}#page-dashboard .stat-card:nth-child(2){border-top-color:#4c82d3}#page-dashboard .stat-card:nth-child(3){border-top-color:#e5a24d}#page-dashboard .stat-card:nth-child(4){border-top-color:#8b67c2}
+#page-dashboard .stat-card:nth-child(1) .stat-icon{background:#e4f6eb;color:#238457}#page-dashboard .stat-card:nth-child(2) .stat-icon{background:#e9f1ff;color:#3979c5}#page-dashboard .stat-card:nth-child(3) .stat-icon{background:#fff1dc;color:#b87922}#page-dashboard .stat-card:nth-child(4) .stat-icon{background:#f0eaff;color:#8054b7}
+#page-dashboard .card{box-shadow:0 7px 24px rgba(22,47,33,.055)}
+@media(max-width:760px){.dashboard-shortcuts{gap:8px}.dashboard-shortcut{padding:11px 9px;gap:8px;flex-direction:column;align-items:flex-start;min-height:100px}.shortcut-icon{width:36px;height:36px;flex-basis:36px}.shortcut-copy strong{font-size:11px}.shortcut-copy small{font-size:9px}.dashboard-extra-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#page-dashboard .welcome{padding:15px 13px}}
+@media(max-width:420px){.dashboard-shortcut{min-height:94px;padding:10px 8px}.dashboard-shortcuts{gap:7px}.dashboard-extra-shortcuts button{padding:10px 8px;font-size:10px}}
+
+
+/* Aksi cepat di dashboard */
+.dashboard-quick-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:0 0 18px}
+.dashboard-quick-action{border:1px solid var(--quick-border,#e5ece6);background:var(--quick-bg,#fff);border-radius:16px;padding:15px 14px;min-width:0;text-align:left;display:flex;flex-direction:column;gap:9px;box-shadow:0 6px 18px rgba(22,47,33,.045);transition:transform .18s,box-shadow .18s}
+.dashboard-quick-action:hover{transform:translateY(-3px);box-shadow:0 12px 24px rgba(22,47,33,.1)}
+.dashboard-quick-action .quick-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:var(--quick-icon-bg,#eaf5ed);color:var(--quick-color,#267b59);font-size:20px;font-weight:800}
+.dashboard-quick-action strong{font-size:12px;color:#1d3026}.dashboard-quick-action small{font-size:10px;color:#718078;line-height:1.45}.dashboard-quick-action .quick-link{font-size:10px;font-weight:800;color:var(--quick-color,#267b59);margin-top:auto}
+.dashboard-quick-action.finance{--quick-bg:#f0f7ff;--quick-border:#dfeaff;--quick-icon-bg:#e0ebff;--quick-color:#4e67d8}
+.dashboard-quick-action.stock{--quick-bg:#eefaf5;--quick-border:#d9f0e4;--quick-icon-bg:#d9f5e7;--quick-color:#16845d}
+.dashboard-quick-action.order{--quick-bg:#fff5eb;--quick-border:#f8e6d2;--quick-icon-bg:#ffead5;--quick-color:#c47728}
+.dashboard-quick-action.shipment{--quick-bg:#effbfc;--quick-border:#d9eff2;--quick-icon-bg:#d8f3f5;--quick-color:#1595a9}
+.quick-form-card{margin:0 0 18px;border:1px solid #dfe9e2;box-shadow:0 10px 26px rgba(22,47,33,.07)}.quick-form-card .section-head{align-items:flex-start}.quick-form-card .quick-form-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.quick-form-card .quick-form-fields .field.full{grid-column:1/-1}.quick-form-card .quick-form-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:16px}.quick-form-card .quick-form-fields .field label{font-size:11px;color:#66756b;font-weight:650}.quick-form-card .quick-form-fields input,.quick-form-card .quick-form-fields select,.quick-form-card .quick-form-fields textarea{border:1px solid #dfe7e1;border-radius:9px;background:#fff;padding:11px;width:100%;min-width:0;font-size:12px;color:var(--ink)}
+@media(max-width:900px){.dashboard-quick-actions{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.dashboard-quick-actions{gap:9px}.dashboard-quick-action{padding:12px 11px;min-height:138px}.quick-form-card .quick-form-fields{grid-template-columns:1fr}.quick-form-card .quick-form-fields .field.full{grid-column:auto}}
+
 </style>
 </head>
 <body>
@@ -55,7 +93,26 @@
  <div class="content">
   <section class="page-section active" id="page-dashboard">
    <div class="welcome"><div><h1 id="dashboardGreeting">Say hello, Admin 👋</h1><p>Ringkasan operasional CV. Rumah Pakan Mandiri.</p></div><div class="toolbar"><label for="dashboardMonth" style="font-size:11px;color:#6d7b71">Filter bulan</label><input type="month" id="dashboardMonth"><div class="date-chip">▣ <span id="todayLabel">27 Oktober 2026</span></div></div></div>
-   <div class="grid stats-grid">
+       <div class="dashboard-shortcuts" aria-label="Pintasan dashboard">
+     <button class="dashboard-shortcut income" type="button" onclick="openDashboardShortcut('income')"><span class="shortcut-icon">↗</span><span class="shortcut-copy"><strong>Pemasukan</strong><small>Lihat transaksi masuk</small></span></button>
+     <button class="dashboard-shortcut" type="button" onclick="openDashboardShortcut('expense')"><span class="shortcut-icon expense">↘</span><span class="shortcut-copy"><strong>Pengeluaran</strong><small>Lihat transaksi keluar</small></span></button>
+     <button class="dashboard-shortcut orders" type="button" onclick="openDashboardShortcut('orders')"><span class="shortcut-icon">▣</span><span class="shortcut-copy"><strong>Order</strong><small>Rekap PO dan pengiriman</small></span></button>
+    </div>
+    <div class="dashboard-extra-shortcuts" aria-label="Akses cepat menu lainnya">
+     <button type="button" onclick="openDashboardShortcut('stock')"><span class="extra-icon">▤</span>Stok & Produksi</button>
+     <button type="button" onclick="openDashboardShortcut('shipments')"><span class="extra-icon">⇢</span>Pengiriman</button>
+     <button type="button" onclick="openDashboardShortcut('attendance')"><span class="extra-icon">◷</span>Absensi & Payroll</button>
+     <button type="button" onclick="openDashboardShortcut('monthly')"><span class="extra-icon">▦</span>Laporan Bulanan</button>
+    </div>
+    <div class="section-head" style="margin:4px 0 12px"><div><h2>Aksi Cepat</h2><p>Input data langsung dari dashboard tanpa membuka menu sidebar.</p></div><span class="pill">4 formulir</span></div>
+    <div class="dashboard-quick-actions" aria-label="Aksi cepat input data">
+     <button class="dashboard-quick-action finance" type="button" onclick="showQuickForm('finance')"><span class="quick-icon">↗</span><strong>Laporan Keuangan</strong><small>Catat pemasukan dan pengeluaran</small><span class="quick-link">Buka form →</span></button>
+     <button class="dashboard-quick-action stock" type="button" onclick="showQuickForm('stock')"><span class="quick-icon">▤</span><strong>Laporan Stok</strong><small>Tambah bahan dan barang</small><span class="quick-link">Buka form →</span></button>
+     <button class="dashboard-quick-action order" type="button" onclick="showQuickForm('order')"><span class="quick-icon">▣</span><strong>Rekap Order</strong><small>Input PO dan status order</small><span class="quick-link">Buka form →</span></button>
+     <button class="dashboard-quick-action shipment" type="button" onclick="showQuickForm('shipment')"><span class="quick-icon">⇢</span><strong>Pengiriman</strong><small>Catat barang terkirim</small><span class="quick-link">Buka form →</span></button>
+    </div>
+    <div id="dashboardQuickFormHost"></div>
+<div class="grid stats-grid">
     <div class="card stat-card clickable-stat" role="button" tabindex="0" onclick="showDashboardDetail('po')" onkeydown="if(event.key==='Enter')showDashboardDetail('po')"><div class="stat-top">Total Purchase Order <span class="stat-icon">▣</span></div><div class="stat-value" id="statPO">3 PT</div><div class="stat-foot"><span class="positive" id="statPOQty">12.500 kg</span> total PO tercatat</div></div>
     <div class="card stat-card clickable-stat" role="button" tabindex="0" onclick="showDashboardDetail('sent')" onkeydown="if(event.key==='Enter')showDashboardDetail('sent')"><div class="stat-top">Total Terkirim <span class="stat-icon">⇢</span></div><div class="stat-value" id="statSent">4.250 kg</div><div class="stat-foot">Pengiriman terdata <span class="positive">●</span></div></div>
     <div class="card stat-card clickable-stat" role="button" tabindex="0" onclick="showDashboardDetail('payment')" onkeydown="if(event.key==='Enter')showDashboardDetail('payment')"><div class="stat-top">Total Pembayaran <span class="stat-icon">↗</span></div><div class="stat-value" id="statPayment">Rp 8,5 jt</div><div class="stat-foot">Cash dan pembayaran piutang</div></div>
@@ -197,6 +254,66 @@ function deleteRecord(type,id){if(!confirm('Hapus data ini?'))return;const map={
 function fmtDate(d){if(!d)return '—';try{return new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}catch(e){return d}}
 function sum(arr,key){return arr.reduce((a,x)=>a+Number(x[key]||0),0)}
 function orderSent(company){return sum(db.shipments.filter(s=>s.company===company),'qty')}
+
+function openDashboardShortcut(kind){
+ const month=document.getElementById('dashboardMonth')?.value||monthNow();
+ let title='',rows=[],qtyTotal=0,amountTotal=0,unit='';
+ const add=(date,name,label,qty,amount,extra='')=>rows.push({date,company:name||'—',label,qty:Number(qty||0),amount:Number(amount||0),extra});
+ if(kind==='income'||kind==='expense'){
+  const type=kind==='income'?'Pemasukan':'Pengeluaran';title='Detail '+type;
+  db.finance.filter(x=>String(x.date||'').startsWith(month)&&x.type===type).forEach(x=>add(x.date,x.company,x.category||type,'',x.amount,x.description||''));
+ }else if(kind==='orders'){
+  title='Detail Purchase Order';db.orders.filter(x=>String(x.date||'').startsWith(month)).forEach(x=>add(x.date,x.company,'Purchase Order',x.qty,Number(x.qty||0)*Number(x.price||0),x.description||''));unit='kg';
+ }else if(kind==='stock'){
+  title='Detail Stok & Produksi';db.stocks.forEach(x=>add(today(),x.material,x.kind,x.qty,Number(x.qty||0)*Number(x.price||0),x.unit||'kg'));unit='kg / satuan';
+ }else if(kind==='shipments'){
+  title='Detail Pengiriman';db.shipments.filter(x=>String(x.date||'').startsWith(month)).forEach(x=>add(x.date,x.company,x.payment||'Pengiriman',x.qty,x.amount,''));unit='kg';
+ }else if(kind==='attendance'){
+  title='Detail Absensi & Payroll';Object.entries(db.attendance||{}).filter(([date])=>String(date).startsWith(month)).forEach(([date,names])=>(names||[]).forEach(name=>add(date,name,'Hadir',1,100000,'Upah harian')));unit='hari';
+ }else if(kind==='monthly'){
+  title='Detail Laporan Bulanan';(db.monthly||[]).filter(x=>String(x.period||x.date||'').startsWith(month)).forEach(x=>add(x.period||x.date,'CV. Rumah Pakan Mandiri','Laporan bulanan',0,Number(x.cash||0),x.note||'Kas actual')); 
+ }
+ qtyTotal=rows.reduce((a,r)=>a+r.qty,0);amountTotal=rows.reduce((a,r)=>a+r.amount,0);
+ const summary=`<div class="attendance-summary"><div class="summary-chip"><span>Jumlah catatan</span><strong>${rows.length}</strong></div><div class="summary-chip"><span>${unit==='kg'?'Total Qty':unit==='hari'?'Total hari hadir':'Total nominal'}</span><strong>${unit==='kg'?num(qtyTotal)+' kg':unit==='hari'?num(qtyTotal)+' hari':money(amountTotal)}</strong></div><div class="summary-chip"><span>Total nominal</span><strong>${money(amountTotal)}</strong></div></div>`;
+ const table=`<div class="table-wrap"><table><thead><tr><th>TANGGAL</th><th>NAMA / ITEM</th><th>JENIS</th><th>${unit==='kg'?'QTY':unit==='hari'?'HARI':'KETERANGAN'}</th><th>NOMINAL</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${fmtDate(r.date)}</td><td>${esc(r.company)}</td><td>${esc(r.label)}</td><td>${unit==='kg'?num(r.qty)+' kg':unit==='hari'?num(r.qty)+' hari':esc(r.extra||'—')}</td><td>${money(r.amount)}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Belum ada data untuk pilihan bulan ini.</td></tr>'}</tbody></table></div>`;
+ openDetailModal(title,summary+table);
+}
+
+
+function showQuickForm(type){
+ const allowed={finance:'finance',stock:'stock',order:'order',shipment:'shipment'};
+ if(!allowed[type]||!schemas[type])return;
+ const schema=schemas[type],host=document.getElementById('dashboardQuickFormHost');
+ const titleMap={finance:'Input Laporan Keuangan',stock:'Input Stok Langsung',order:'Input Rekap Order',shipment:'Input Pengiriman'};
+ const iconMap={finance:'↗',stock:'▤',order:'▣',shipment:'⇢'};
+ const fields=schema.fields.map(f=>{
+  const isFull=f.type==='textarea'||['description','manualKind','manualMaterial'].includes(f.name);
+  let control='';
+  if(f.type==='select'){
+   const options=(f.opts||[]).map(o=>`<option value="${esc(o)}">${esc(o)}</option>`).join('');
+   control=`<select name="${esc(f.name)}" ${['type','category','kind','material','unit','payment'].includes(f.name)?'required':''}>${options}</select>`;
+  }else if(f.type==='textarea')control=`<textarea name="${esc(f.name)}" placeholder="${esc(f.placeholder||'Isi keterangan jika diperlukan')}"></textarea>`;
+  else control=`<input name="${esc(f.name)}" type="${esc(f.type||'text')}" ${f.type==='date'?`value="${today()}"`:''} ${f.type==='month'?`value="${monthNow()}"`:''} ${f.min!==undefined?`min="${f.min}"`:''} ${f.type==='number'?'step="any"':''} ${['date','company','qty','amount','price'].includes(f.name)&&type!=='stock'||(type==='stock'&&['qty','price'].includes(f.name))?'required':''} placeholder="${esc(f.placeholder||'')}">`;
+  return `<div class="field ${isFull?'full':''}"><label>${esc(f.label)}</label>${control}</div>`;
+ }).join('');
+ host.innerHTML=`<div class="card quick-form-card" id="dashboardQuickFormCard"><div class="section-head"><div><h2>${esc(titleMap[type])}</h2><p>Data tersimpan ke database lokal dashboard dan memperbarui ringkasan terkait.</p></div><button type="button" class="close" aria-label="Tutup formulir" onclick="closeQuickForm()">×</button></div><form id="dashboardQuickForm" onsubmit="saveQuickForm(event,'${type}')"><div class="quick-form-fields">${fields}</div><div class="quick-form-actions"><button class="btn outline" type="button" onclick="closeQuickForm()">Batal</button><button class="btn" type="submit">✓ Simpan data</button></div></form></div>`;
+ document.getElementById('dashboardQuickFormCard').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function closeQuickForm(){const host=document.getElementById('dashboardQuickFormHost');if(host)host.innerHTML=''}
+function saveQuickForm(event,type){
+ event.preventDefault();const form=event.currentTarget,fd=new FormData(form),v=Object.fromEntries(fd.entries()),n=k=>Number(v[k]||0),id=uid();
+ if(type==='finance')db.finance.push({id,date:v.date,type:v.type,category:v.category,description:v.description,company:v.company,amount:n('amount')});
+ else if(type==='stock'){
+  const kind=v.kind==='Manual'?(v.manualKind||'Manual'):v.kind,material=v.material==='Manual'?(v.manualMaterial||'Manual'):v.material;
+  const existing=db.stocks.find(s=>s.kind===kind&&s.material===material&&s.unit===v.unit);
+  if(existing){const newPrice=n('price');existing.priceHistory=existing.priceHistory||[];if(Number(existing.price)!==newPrice)existing.priceHistory.push({date:today(),priceBefore:Number(existing.price),priceAfter:newPrice});existing.previousPrice=Number(existing.price);existing.price=newPrice;existing.qty+=n('qty')}
+  else db.stocks.push({id,kind,material,qty:n('qty'),price:n('price'),previousPrice:n('price'),priceHistory:[],unit:v.unit});
+ }else if(type==='order')db.orders.push({id,date:v.date,company:v.company,qty:n('qty'),price:n('price'),description:v.description});
+ else if(type==='shipment')db.shipments.push({id,date:v.date,company:v.company,qty:n('qty'),amount:n('amount'),payment:v.payment});
+ else return;
+ persist();renderAll();closeQuickForm();showToast('Data berhasil disimpan dari Aksi Cepat.');
+}
+
 function renderDashboard(){
  const month=document.getElementById('dashboardMonth')?.value||monthNow();
  const inMonth=(x)=>String(x.date||'').startsWith(month);
