@@ -472,4 +472,4 @@ case'monthly':db.monthly.push({id,...v,capital:n('capital'),asset:n('asset'),non
 document.getElementById('attendanceDate').value=today();document.getElementById('attendanceHistoryMonth').value=monthNow();document.getElementById('payrollMonth').value=monthNow();document.getElementById('monthlyPeriod').value=monthNow();document.getElementById('dashboardMonth').value=monthNow();document.getElementById('dashboardMonth').addEventListener('change',renderDashboard);document.getElementById('employeeSearch').addEventListener('input',renderAttendance);document.getElementById('attendanceDate').addEventListener('change',renderAttendance);document.getElementById('financeChartPeriod').addEventListener('change',renderDashboard);document.getElementById('globalSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){const q=e.target.value.toLowerCase();const found=db.orders.find(o=>o.company.toLowerCase().includes(q));if(found){navigate('orders');document.getElementById('orderSearch').value=q;renderOrders();showOrderDetail(found.company)}else showToast('Tidak ditemukan di daftar PT / PO.')}});renderAll();
 </script>
 </body>
-</html>
+</html> 
