@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RPM Backend Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #f4f6f9;
+      color: #222;
+    }
+    input, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0;
+    }
+    button { cursor: pointer; }
+    #result {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: white;
+      padding: 14px;
+      border-radius: 8px;
+      min-height: 80px;
+    }
+  </style>
+</head>
+<body>
+  <h2>RPM — Backend Test</h2>
+  <p>Gunakan akun Supabase yang sudah terdaftar.</p>
+
+  <form id="loginForm">
+    <input id="email" type="email" placeholder="Email Supabase" required>
+    <input id="password" type="password" placeholder="Password Supabase" required>
+    <button type="submit">1. Login dan Cek Role</button>
+  </form>
+
+  <button id="readBtn">2. Baca Data Attendance</button>
+  <button id="saveBtn">3. Simpan Data Uji</button>
+  <button id="deleteBtn">4. Hapus Data Uji</button>
+  <button id="logoutBtn">Logout</button>
+
+  <h3>Hasil</h3>
+  <pre id="result">Belum dites.</pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./backend.js"></script>
+  <script>
+    const result = document.getElementById("result");
+    const testKey = "__rpm_backend_test__";
+
+    function show(message, data) {
+      result.textContent = message +
+        (data === undefined ? "" : "\n" + JSON.stringify(data, null, 2));
+    }
+
+    async function run(action) {
+      try {
+        show("Sedang menjalankan tes...");
+        const data = await action();
+        show("BERHASIL", data);
+      } catch (error) {
+        show("GAGAL: " + error.message);
+      }
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", e => {
+      e.preventDefault();
+      run(async () => {
+        const data = await RPMBackend.login(
+          document.getElementById("email").value.trim(),
+          document.getElementById("password").value
+        );
+        return {
+          login: "OK",
+          user: data.user.email,
+          profile: data.profile
+        };
+      });
+    });
+
+    document.getElementById("readBtn").onclick = () => run(async () => {
+      const rows = await RPMBackend.listRecords("attendance");
+      return {
+        totalAttendanceRecords: rows.length,
+        testRecordFound: rows.some(row => row.record_key === testKey)
+      };
+    });
+
+    document.getElementById("saveBtn").onclick = () => run(async () => {
+      const date = new Date().toLocaleDateString("en-CA");
+      const saved = await RPMBackend.saveRecord(
+        "attendance",
+        testKey,
+        { test: true, note: "RPM backend connection test" },
+        date
+      );
+      return {
+        saved: true,
+        module: saved.module,
+        record_key: saved.record_key,
+        id: saved.id
+      };
+    });
+
+    document.getElementById("deleteBtn").onclick = () => run(async () => {
+      await RPMBackend.deleteRecord("attendance", testKey);
+      return { deleted: true, record_key: testKey };
+    });
+
+    document.getElementById("logoutBtn").onclick = () => run(async () => {
+      await RPMBackend.logout();
+      return { logout: "OK" };
+    });
+  </script>
+</body>
+</html>
