@@ -766,7 +766,60 @@ function clearFilter(...ids){ids.forEach(id=>{const e=document.getElementById(id
 function setEmpty(id,msg,cols){const el=document.getElementById(id);if(el)el.innerHTML=`<tr><td colspan="${cols}" class="empty">${msg}</td></tr>`}
 function dateFilter(row,fromId,toId){const from=document.getElementById(fromId)?.value||'',to=document.getElementById(toId)?.value||'';return(!from||row.date>=from)&&(!to||row.date<=to)}
 function rowActions(type,id){return `<button type="button" class="btn outline small" data-delete-type="${esc(type)}" data-delete-id="${esc(id)}" onclick="deleteRecord(this.dataset.deleteType,this.dataset.deleteId)">Hapus</button>`}
-function deleteRecord(type,id){if(!confirm('Hapus data ini?'))return;const map={logistics:'logs',finance:'finance',stock:'stocks',production:'productions',product:'products',shipment:'shipments',receivable:'receivables',margin:'margins',monthly:'monthly',order:'orders',payment:'payments'};if(type==='attendance'){const sep=id.indexOf('::');const date=id.slice(0,sep),name=decodeURIComponent(id.slice(sep+2));db.attendance[date]=(db.attendance[date]||[]).filter(n=>n!==name);if(!db.attendance[date].length)delete db.attendance[date];persist();renderAll();showToast('Kehadiran '+name+' tanggal '+fmtDate(date)+' dihapus. Payroll diperbarui.');return;}const key=map[type];if(!key)return;db[key]=db[key].filter(x=>String(x.id)!==String(id));persist();renderAll();showToast('Data dihapus.')}
+async function deleteRecord(type,id){
+ const map={logistics:'logs',finance:'finance',stock:'stocks',production:'productions',product:'products',shipment:'shipments',receivable:'receivables',margin:'margins',monthly:'monthly',order:'orders',payment:'payments'};
+ const isAttendance=type==='attendance';
+ const key=isAttendance?'attendance':map[type];
+ if(id===undefined||id===null||String(id)===''){showToast('ID data tidak ditemukan.');return}
+ if(!key){showToast('Jenis data tidak dikenali.');return}
+ if(!authSession?.access_token||!cloudReady){showToast('Sesi Supabase belum siap. Tidak ada data yang dihapus.');return}
+ if(!confirm('Hapus data ini?'))return;
+ let previous;
+ let attendanceDate='',attendanceName='';
+ if(isAttendance){
+  const sep=String(id).indexOf('::');
+  if(sep<1){showToast('ID catatan kehadiran tidak valid.');return}
+  attendanceDate=String(id).slice(0,sep);
+  try{attendanceName=decodeURIComponent(String(id).slice(sep+2))}catch(e){showToast('ID catatan kehadiran tidak valid.');return}
+  const names=db.attendance?.[attendanceDate];
+  if(!Array.isArray(names)){showToast('Catatan kehadiran tidak ditemukan.');return}
+  const index=names.indexOf(attendanceName);
+  if(index<0){showToast('Catatan kehadiran tidak ditemukan atau sudah dihapus.');return}
+  previous=names.slice();
+  names.splice(index,1);
+  if(!names.length)delete db.attendance[attendanceDate];
+ }else{
+  if(!Array.isArray(db[key])){showToast('Sumber data tidak tersedia. Tidak ada data yang dihapus.');return}
+  const index=db[key].findIndex(x=>String(x?.id)===String(id));
+  if(index<0){showToast('Data tidak ditemukan atau sudah dihapus.');return}
+  previous=db[key].slice();
+  db[key].splice(index,1);
+ }
+ try{
+  // Simpan lokal lebih dulu, lalu tunggu Supabase dan baca ulang untuk memastikan perubahan benar-benar tersimpan.
+  localStorage.setItem('rpm_demo_full_month_v1',JSON.stringify(db));
+  clearTimeout(cloudSaveTimer);cloudSaveTimer=null;
+  await saveCloudState();
+  if(!cloudRecordId)throw new Error('ID record Supabase tidak tersedia untuk verifikasi.');
+  const check=await cloudRequest(SUPABASE_URL+'/rest/v1/app_records?select=payload&id=eq.'+encodeURIComponent(cloudRecordId)+'&limit=1');
+  if(!Array.isArray(check)||!check.length||!check[0]?.payload)throw new Error('Data Supabase tidak dapat diverifikasi.');
+  const remote=check[0].payload;
+  const stillExists=isAttendance
+   ?(Array.isArray(remote.attendance?.[attendanceDate])&&remote.attendance[attendanceDate].includes(attendanceName))
+   :(Array.isArray(remote[key])&&remote[key].some(x=>String(x?.id)===String(id)));
+  if(stillExists)throw new Error('Data masih ditemukan di Supabase setelah proses hapus.');
+  renderAll();
+  showToast(isAttendance?'Catatan kehadiran berhasil dihapus dan tersimpan.':'Data berhasil dihapus dan tersimpan ke Supabase.');
+ }catch(err){
+  // Jangan biarkan tampilan menganggap penghapusan berhasil jika sinkronisasi belum terbukti.
+  if(isAttendance){db.attendance[attendanceDate]=previous;}
+  else{db[key]=previous;}
+  localStorage.setItem('rpm_demo_full_month_v1',JSON.stringify(db));
+  renderAll();
+  console.error('Delete/sync verification failed:',err);
+  showToast('Penghapusan belum terkonfirmasi. Data lokal dipulihkan; coba lagi saat koneksi stabil.');
+ }
+}
 function fmtDate(d){if(!d)return '—';try{return new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}catch(e){return d}}
 function sum(arr,key){return arr.reduce((a,x)=>a+Number(x[key]||0),0)}
 function orderSent(company){return sum(db.shipments.filter(s=>s.company===company),'qty')}
@@ -932,7 +985,9 @@ function renderPayroll(){const month=document.getElementById('payrollMonth').val
 function renderLogistics(){const from=document.getElementById('logFilterDate').value,type=document.getElementById('logFilterType').value,loc=(document.getElementById('logLocationFilter')?.value||'').toLowerCase();let rows=db.logs.filter(x=>(!from||x.date===from)&&(!type||x.material===type)&&(!loc||String(x.location||'').toLowerCase().includes(loc)));document.getElementById('logCount').textContent=db.logs.length;document.getElementById('logFee').textContent=money(sum(db.logs,'fee'));document.getElementById('logHandling').textContent=money(sum(db.logs,'handling'));document.getElementById('logOther').textContent=money(sum(db.logs,'otherAmount'));document.getElementById('logTable').innerHTML=rows.map(x=>`<tr><td>${fmtDate(x.date)}</td><td>${esc(x.material)}</td><td>${num(x.qty)} kg</td><td>${esc(x.location||'—')}</td><td>${esc(x.direction)}<br><small style="color:#849087">${esc(x.activity||'—')}</small></td><td>${money(x.fee)}</td><td>${money(x.handling+x.otherAmount)}</td><td>${fmtDate(x.payDate)}</td><td>${rowActions('logistics',x.id)}</td></tr>`).join('')||'<tr><td colspan="9" class="empty">Belum ada data bongkar muat.</td></tr>'}
 function renderFinance(){const from=document.getElementById('financeFrom').value,to=document.getElementById('financeTo').value,type=document.getElementById('financeTypeFilter').value,category=document.getElementById('financeCategoryFilter').value;const all=db.finance;const inc=sum(all.filter(x=>x.type==='Pemasukan'),'amount'),exp=sum(all.filter(x=>x.type==='Pengeluaran'),'amount');document.getElementById('incomeTotal').textContent=money(inc);document.getElementById('expenseTotal').textContent=money(exp);document.getElementById('netTotal').textContent=money(inc-exp);document.getElementById('transactionCount').textContent=all.length;let rows=all.filter(x=>(!from||x.date>=from)&&(!to||x.date<=to)&&(!type||x.type===type)&&(!category||x.category===category)).sort((a,b)=>b.date.localeCompare(a.date));document.getElementById('financeTable').innerHTML=rows.map(x=>`<tr><td>${fmtDate(x.date)}</td><td><span class="pill ${x.type==='Pemasukan'?'':'danger'}">${x.type}</span></td><td>${esc(x.category)}</td><td>${esc(x.description)}</td><td>${esc(x.company)}</td><td><b>${money(x.amount)}</b></td><td>${rowActions('finance',x.id)}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">Belum ada transaksi.</td></tr>'}
 function renderStock(){document.getElementById('stockCards').innerHTML=db.stocks.map(s=>`<div class="card stock-box"><span class="stock-accent">▤</span><div class="stock-type">${esc(s.kind)}</div><div style="font-weight:700;margin-top:5px">${esc(s.material)}</div><div class="stock-qty">${num(s.qty)}</div><div class="stock-unit">${esc(s.unit)} tersedia · ${money(s.price)}/${esc(s.unit)}</div></div>`).join('')||'<div class="card empty">Belum ada stok.</div>';document.getElementById('stockTable').innerHTML=db.stocks.map(s=>{const history=s.priceHistory||[];const old=history.length?history[history.length-1].priceBefore:(s.previousPrice??s.price);return `<tr><td>${esc(s.kind)}</td><td><b>${esc(s.material)}</b></td><td>${num(s.qty)} ${esc(s.unit)}</td><td>${money(old)}</td><td>${money(s.price)}</td><td>${money(s.qty*s.price)}<br><button class="btn outline small" onclick="showPriceHistory('${s.id}')">Riwayat harga</button> ${rowActions('stock',s.id)}</td></tr>`}).join('')||'<tr><td colspan="6" class="empty">Belum ada stok.</td></tr>'; document.getElementById('productionQuickSummary').innerHTML=`<div class="attendance-summary"><div class="summary-chip"><span>Jenis bahan</span><strong>${db.stocks.filter(s=>s.kind==='Bahan baku').length}</strong></div><div class="summary-chip"><span>Riwayat produksi</span><strong>${db.productions.length}</strong></div><div class="summary-chip"><span>Total hasil (kg)</span><strong>${num(sum(db.productions,'outputQty'))}</strong></div></div>`;document.getElementById('productionTable').innerHTML=db.productions.map(p=>`<tr><td>${fmtDate(p.date)}</td><td>${esc(p.inputs.map(i=>i.material).join(', '))}</td><td>${num(sum(p.inputs,'qty'))} kg</td><td>${esc(p.inputs.map(i=>num(i.qty)+' '+i.material).join(' · '))}</td><td><b>${num(p.outputQty)} kg</b></td><td>${rowActions('production',p.id)}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Belum ada catatan pemakaian bahan.</td></tr>';document.getElementById('productTable').innerHTML=db.products.map(p=>`<tr><td>${fmtDate(p.date)}</td><td><b>${esc(p.product)}</b></td><td>${num(p.qty)} kg</td><td>${esc(p.note||'—')}</td><td>${rowActions('product',p.id)}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">Belum ada hasil produksi.</td></tr>';}
-function renderWeekly(){const company=(document.getElementById('weeklyCompanyFilter')?.value||'').toLowerCase();const rowsR=db.receivables.filter(r=>dateFilter(r,'weeklyFrom','weeklyTo')&&(!company||String(r.company||'').toLowerCase().includes(company))),rowsM=db.margins.filter(r=>dateFilter(r,'weeklyFrom','weeklyTo'));document.getElementById('receivableTable').innerHTML=rowsR.map(r=>`<tr><td>${fmtDate(r.date)}</td><td>${fmtDate(r.due)}</td><td>${esc(r.company)}</td><td>${num(r.qty)}</td><td>${money(r.price)}</td><td>${money(r.amount)}</td><td><span class="pill ${r.status==='Cash'?'':'pending'}">${esc(r.status)}</span></td><td>${rowActions('receivable',r.id)}</td></tr>`).join('')||'<tr><td colspan="7" class="empty">Belum ada piutang.</td></tr>';document.getElementById('marginTable').innerHTML=rowsM.filter(m=>!company||String(m.company||'').toLowerCase().includes(company)).map(m=>`<tr><td>${fmtDate(m.date)}</td><td>${esc(m.company||'—')}</td><td>${num(m.qty)} kg</td><td>${money(m.margin)}</td><td><b>${money(m.amount)}</b></td><td>${rowActions('margin',m.id)}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">Belum ada data margin.</td></tr>'}
+function weeklyDeleteAction(type,id){return `<button type="button" class="btn outline small" data-weekly-delete-type="${esc(type)}" data-weekly-delete-id="${esc(id)}" onclick="deleteWeeklyRecord(this.dataset.weeklyDeleteType,this.dataset.weeklyDeleteId)">Hapus</button>`}
+function deleteWeeklyRecord(type,id){return deleteRecord(type,id)}
+function renderWeekly(){const company=(document.getElementById('weeklyCompanyFilter')?.value||'').toLowerCase();const rowsR=db.receivables.filter(r=>dateFilter(r,'weeklyFrom','weeklyTo')&&(!company||String(r.company||'').toLowerCase().includes(company))).map(r=>({...r,_weeklySource:'receivable'}));const rowsS=db.shipments.filter(s=>dateFilter(s,'weeklyFrom','weeklyTo')&&(!company||String(s.company||'').toLowerCase().includes(company))).map(s=>({...s,due:'',price:Number(s.qty||0)>0?Number(s.amount||0)/Number(s.qty):0,status:s.payment||'Belum dibayar',_weeklySource:'shipment'}));const rowsAll=[...rowsR,...rowsS].sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));const rowsM=db.margins.filter(m=>dateFilter(m,'weeklyFrom','weeklyTo')&&(!company||String(m.company||'').toLowerCase().includes(company)));document.getElementById('receivableTable').innerHTML=rowsAll.map(r=>{const positive=['Cash','Lunas','Done'].includes(String(r.status||''));const sourceLabel=r._weeklySource==='shipment'?'Pengiriman · ':'';return `<tr><td>${fmtDate(r.date)}</td><td>${r.due?fmtDate(r.due):'—'}</td><td>${esc(r.company)}</td><td>${num(r.qty)}</td><td>${money(r.price)}</td><td>${money(r.amount)}</td><td><span class="pill ${positive?'':'pending'}">${sourceLabel}${esc(r.status)}</span></td><td>${weeklyDeleteAction(r._weeklySource,r.id)}</td></tr>`}).join('')||'<tr><td colspan="8" class="empty">Belum ada data pengiriman atau piutang pada periode ini.</td></tr>';document.getElementById('marginTable').innerHTML=rowsM.map(m=>`<tr><td>${fmtDate(m.date)}</td><td>${esc(m.company||'—')}</td><td>${num(m.qty)} kg</td><td>${money(m.margin)}</td><td><b>${money(m.amount)}</b></td><td>${weeklyDeleteAction('margin',m.id)}</td></tr>`).join('')||'<tr><td colspan="6" class="empty">Belum ada data margin.</td></tr>'}
 function renderMonthly(){
  const period=document.getElementById('monthlyPeriod').value||monthNow();
  const data=db.monthly.filter(m=>m.period===period);
