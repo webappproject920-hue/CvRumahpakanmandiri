@@ -996,13 +996,14 @@ function renderMonthly(){
  const periodFinance=db.finance.filter(x=>String(x.date||'').startsWith(period));
  const cash=sum(periodFinance.filter(x=>x.type==='Pemasukan'),'amount')-sum(periodFinance.filter(x=>x.type==='Pengeluaran'),'amount');
  const receivable=sum(db.receivables.filter(x=>x.status!=='Cah'&&String(x.date||'').startsWith(period)),'amount');
+ const monthlyReceivable=data.length?data.reduce((total,m)=>total+Number(m.ptReceivable??receivable),0):receivable;
  const stockValue=db.stocks.reduce((total,x)=>total+(Number(x.qty)||0)*(Number(x.price)||0),0);
  const paymentTotal=sum(db.payments.filter(x=>String(x.date||'').startsWith(period)),'amount')+sum(db.shipments.filter(x=>String(x.date||'').startsWith(period)&&String(x.payment||'').trim().toLowerCase()==='cash'),'amount');
  const marginTotal=sum(db.margins.filter(x=>String(x.date||'').startsWith(period)),'amount');
  document.getElementById('monthModal').textContent=money(chosen.capital);
  document.getElementById('monthAssets').textContent=money(asset+nonasset);
  document.getElementById('monthCash').textContent=money(chosen.cash??cash);
- document.getElementById('monthReceivable').textContent=money(receivable);
+ document.getElementById('monthReceivable').textContent=money(monthlyReceivable);
  const savedRows=data.map(m=>`<tr><td>${esc(m.period)}</td><td>${money(m.capital)}</td><td>${money(m.asset)}</td><td>${money(m.nonasset)}</td><td>${money(m.cash??cash)}</td><td>${money(m.stockValue??stockValue)}</td><td>${money(m.ptPayment)}</td><td>${money(m.ptReceivable??receivable)}</td><td>${money(m.margin??marginTotal)}</td><td>${money(m.buyerPayment)}</td><td>${money(m.weeklySavingProfit)}</td><td>${money(m.loanFunds)}</td><td>${money(m.annualSavings)}</td><td>${money(m.monthlySavings)}</td><td>${money(m.totalAnnualSavings)}</td><td>${esc(m.note||'—')}</td><td>${rowActions('monthly',m.id)}</td></tr>`).join('');
  const automaticRow=`<tr><td><b>${esc(period)}</b></td><td>—</td><td>—</td><td>—</td><td><b>${money(cash)}</b></td><td>${money(stockValue)}</td><td>${money(paymentTotal)}</td><td>${money(receivable)}</td><td>${money(marginTotal)}</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td><span class="pill">Ringkasan otomatis · transaksi</span></td><td>—</td></tr>`;
  document.getElementById('monthlyTable').innerHTML=(savedRows||automaticRow)+(data.length?`<tr class="total-row"><td><b>TOTAL</b></td>${['capital','asset','nonasset','cash','stockValue','ptPayment','ptReceivable','margin','buyerPayment','weeklySavingProfit','loanFunds','annualSavings','monthlySavings','totalAnnualSavings'].map(k=>`<td><b>${money(data.reduce((a,m)=>a+Number(m[k]||0),0))}</b></td>`).join('')}<td>—</td><td>—</td></tr>`:'');
